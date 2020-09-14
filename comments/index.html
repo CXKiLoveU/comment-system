@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="js/vue.js"></script>
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/popper.js/1.15.0/umd/popper.min.js"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/common.css">
+    <script src="js/isEmpty.js"></script>
+    <script src="js/NowTime.js"></script>
+</head>
+
+<body>
+    <div id="body">
+        <div class="nav">
+            <strong>AAfIIon</strong>
+            <div class="existing_user">
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <img :src="currentUser.headImg" alt="">
+                        <p v-text="currentUser.ID"></p>
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <a class="dropdown-item" href="javascript:;" v-for="user,index in users"
+                            @click="changeUser(index)"><img :src="user.headImg" alt="">
+                            <p v-html="user.ID"></p>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="app">
+            <div class="title">评论({{commentsNum}})</div>
+            <div class="comments">
+                <ul class="all_user">
+                    <li :key="comment.id" class="user" v-for="comment,index in comments"
+                        :class="{show:index < indexN && index >= indexL}">
+                        <div class="user_head">
+                            <a href="javascript:;"><img :src="comment.user.headImg" alt=""></a>
+                        </div>
+                        <div class="user_info">
+                            <ul class="info">
+                                <li class="user_name"><a href="javascript:;">{{comment.user.name}}</a></li>
+                                <p>&nbsp;&nbsp;&nbsp;{{comment.currentTime}}</p>
+                                <li class="content">{{comment.content}}</li>
+                                <li class="del"><a href="javascript:;" @click="del(index)">删除</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div class="pub">
+                <div class="page">
+                    <div class="last"><a href="javascript:;" @click="LastPage">上一页</a></div>
+                    <p>{{currentPage}}/{{allPages}}</p>
+                    <div class="next"><a href="javascript:;" @click="NextPage">下一页</a></div>
+                </div>
+                <textarea class="text" v-model="text" maxlength="500" placeholder="说点什么吧~"></textarea>
+                <div class="publish"><a href="javascript:;" @click="publish()">发表</a>
+                    <p>{{text.length}}/{{maxWords}}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        var app = new Vue({
+            el: "#body",
+            data: {
+                indexL: 0,
+                indexN: 5,
+                identity: 2,
+                // binIds: [],
+                text: "",
+                maxWords: 500,
+                commentsNum: 0,
+                currentPage: 1,
+                allPages: 1,
+                currentUser: {
+                    name: "我好笨哦",
+                    headImg: "img/Jack.jpeg",
+                    ID: "lunlungege",
+                    password: ""
+                },
+                users: [
+                    {
+                        name: "我好笨哦",
+                        headImg: "img/Jack.jpeg",
+                        ID: "lunlungege",
+                        password: ""
+                    },
+                    {
+                        name: "CC妹妹",
+                        headImg: "img/Tom.jpeg",
+                        ID: "woxihuanni",
+                        password: ""
+                    },
+                    {
+                        name: "哥斯拉",
+                        headImg: "img/3.jpeg",
+                        ID: "x520j1314l",
+                        password: ""
+                    }
+                ],
+                comments: [
+                    {
+                        id: 0,
+                        lock: 1,
+                        user: {
+                            name: "我好笨哦",
+                            headImg: "img/Jack.jpeg"
+                        },
+                        currentTime: "2020-9-1 下午10: 33",
+                        content: "好大的雨，我浑身都湿透了，如果哥哥女朋友不在家的话，能借用一下哥哥的地方洗个澡吗？"
+                    },
+                    {
+                        id: 1,
+                        lock: 1,
+                        user: {
+                            name: "CC妹妹",
+                            headImg: "img/Tom.jpeg"
+                        },
+                        currentTime: "2019-8-8 下午2: 21",
+                        content: "一个人有可能会同时喜欢上两个人吗？"
+                    },
+                    {
+                        id: 2,
+                        lock: 1,
+                        user: {
+                            name: "哥斯拉",
+                            headImg: "img/3.jpeg"
+                        },
+                        currentTime: "2018-2-8 上午7: 43",
+                        content: "你男朋友确实是挺好的，我只是很单纯的欣赏他，想要跟他做朋友，但是呢，我们之间真的没有什么，你误会我们了，我真的只是当他是哥哥而已……"
+                    }
+
+                ]
+            },
+            methods: {
+                LastPage: function () {
+                    if (this.currentPage != 1) {
+                        this.currentPage -= 1;
+                        this.indexL -= 5;
+                        this.indexN -= 5;
+                    }
+                },
+                NextPage: function () {
+                    if (this.currentPage != this.allPages) {
+                        this.currentPage += 1;
+                        this.indexL += 5;
+                        this.indexN += 5;
+                    }
+                },
+                del: function (index) {
+                    if (!this.comments[index].lock) {
+                        localStorage.removeItem(this.comments.splice(index, 1)[0].id);
+                        this.commentsNum = this.comments.length;
+                        // var k = this.binIds.push(localStorage.key(index));
+                        this.allPages = Math.ceil(this.comments.length / 5);
+
+                    }
+                },
+                publish: function () {
+                    if (this.text.trim().length != 0) {
+                        // // var identity = isEmpty(this.binIds) ? ++this.identity : this.binIds.shift();
+                        var identity = ++this.identity;
+                        var now = + new Date();
+                        var newComment = {
+                            id: identity,
+                            now: now,
+                            user: {
+                                name: this.currentUser.name,
+                                headImg: this.currentUser.headImg
+                            },
+                            currentTime: NowTime(),
+                            content: this.text
+                        };
+                        this.comments.unshift(newComment);
+                        this.text = '';
+                        this.commentsNum = this.comments.length;
+                        localStorage.setItem(newComment.id, JSON.stringify(newComment));
+                        if (this.comments.length > 5) {
+                            this.allPages = Math.ceil(this.comments.length / 5);
+                        }
+                    } else {
+                        this.text = '';
+                    }
+
+                },
+                changeUser: function (index) {
+                    if (this.currentUser.name != this.users[index].name) {
+                        this.currentUser.name = this.users[index].name;
+                        this.currentUser.ID = this.users[index].ID;
+                        this.currentUser.headImg = this.users[index].headImg;
+                        this.currentUser.password = this.users[index].password;
+                    }
+                },
+
+            },
+            mounted: function () {
+                // localStorage.clear()
+                // for (var i in this.comments) {
+                //     console.log(i);
+                //     localStorage.setItem(i,JSON.stringify(this.comments[i]));
+                // }
+                // this.comments = [];
+                for (var i = 0; i < localStorage.length; i++) {
+                    var getKey = localStorage.key(i);
+                    var getVal = JSON.parse(localStorage.getItem(getKey));
+                    this.comments.unshift(getVal);
+                }
+                // this.comments.reverse();
+                if (this.comments.length > 5) {
+                    this.allPages = Math.ceil(this.comments.length / 5);
+                }
+                this.commentsNum = this.comments.length;
+                for (var i in this.comments) {
+                    if (this.comments[i].id > this.identity) {
+                        this.identity = this.comments[i].id;
+                    }
+                }
+                var cArr = [];
+                for (var i = 0; i < this.commentsNum; i++) {
+                    var c = 0;
+                    var index = 0;
+                    for (var x in this.comments) {
+                        if (this.comments[x].now > c) {
+                            c = this.comments[x].now;
+                            index = x;
+                        }
+                    }
+                    if (isEmpty(this.comments) != true) {
+                        cArr.push(this.comments.splice(index, 1));
+                    }
+                    
+                }
+                for (var i in cArr) {
+                    this.comments.push(cArr[i][0]);
+                }
+                
+            }
+        })
+    </script>
+</body>
+
+</html>
